@@ -32,8 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
   static double distant = 600;
   double zoomVal = 16;
   BitmapDescriptor _markerIcon;
-  BitmapDescriptor _markerIconMe;
-  Set<Marker> _markers = HashSet<Marker>();
+  // BitmapDescriptor _markerIconMe;
+  // Set<Marker> _markers = HashSet<Marker>();
 
   Map<MarkerId, Marker> markers = <MarkerId, Marker>{};
 
@@ -43,25 +43,24 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    iniPlatformState();
+    iniPlatformState(distant);
     _setMarkerIcon();
   }
 
-  Future<void> iniPlatformState() async {
-    print("==============object==========");
+  Future<void> iniPlatformState(double d) async {
     datashop = null;
+    markers.clear();
     var response = await http.get(
         Uri.encodeFull("http://206.189.46.191/WebAPI/shopAll"),
         headers: {"Accept": "application/json"});
     datashop = dataShopFromJson(response.body);
     print("data_shop : " + datashop.length.toString());
-    setState(() {});
 
     var currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     x = currentLocation.latitude;
     y = currentLocation.longitude;
-    _setCircles(x, y);
+    _setCircles(x, y ,d);
     // ร้าน
     if (datashop.length > 0) {
       for (var i = 0; i < datashop.length; i++) {
@@ -108,13 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
     zoom: 16,
   );
 
-  void _setCircles(x, y) {
+  void _setCircles(x, y, d) {
     _circles.clear();
     _circles.add(
       Circle(
           circleId: CircleId("0"),
           center: LatLng(x, y),
-          radius: distant,
+          radius: d,
           strokeWidth: 2,
           fillColor: Color.fromRGBO(102, 51, 153, .5)),
     );
@@ -123,8 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void _setMarkerIcon() async {
     _markerIcon = await BitmapDescriptor.fromAssetImage(
         ImageConfiguration(), 'assets/store.png');
-    _markerIconMe = await BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(), 'assets/pin.png');
+    // _markerIconMe = await BitmapDescriptor.fromAssetImage(
+    //     ImageConfiguration(), 'assets/pin.png');
   }
 
   // รับค่าLogin
@@ -138,11 +137,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // รับค่าค้นหา
   _navigateSearch(BuildContext context) async {
+    distant = 600;
+    iniPlatformState(distant);
     // var dataSearch = await Navigator.push(
     //   context,
     //   MaterialPageRoute(builder: (context) => PageSearch()),
     // );
-    // dataLogin = userLogin;
   }
 
   _alertComment() {
@@ -204,7 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _goToTheLake() async {
-    iniPlatformState();
+    iniPlatformState(distant);
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kGooglePlex));
   }
@@ -379,11 +379,21 @@ class _MyHomePageState extends State<MyHomePage> {
     return new Scaffold(
       appBar: AppBar(
         leading: (dataLogin != null)
-            ? IconButton(icon: Icon(FontAwesomeIcons.addressBook))
+            ? IconButton(
+                icon: Icon(FontAwesomeIcons.user),
+                onPressed: () {
+                  dataLogin = null;
+                  setState(() {
+                    
+                  });
+                },
+              )
             : IconButton(
                 icon: Icon(FontAwesomeIcons.user),
                 onPressed: () => _navigateAndDisplaySelection(context)),
-        title: Text("Map Store"),
+        title: (dataLogin != null)
+            ? Text("ยินดีต้อนรับ " + dataLogin[0].userName)
+            : Text(""),
         actions: <Widget>[
           _zoomminusfunction(),
           _zoomplusfunction(),
