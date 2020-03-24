@@ -1,0 +1,4 @@
+#Wed Mar 25 00:10:24 ICT 2020
+base.0=/Users/nantarwathkomto/Desktop/PRO1/mapstore/build/app/intermediates/dex/debug/mergeDexDebug/out/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
