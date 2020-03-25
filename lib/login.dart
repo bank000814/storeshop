@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:mapstore/models/dataLogin.dart';
 import 'package:mapstore/utilities/constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 class PageLogin extends StatefulWidget {
   @override
@@ -106,6 +107,8 @@ class _PageLoginState extends State<PageLogin> {
           dataLogin = dataLoginFromJson(response.body);
           if (dataLogin.length > 0) {
             Navigator.pop(context, dataLogin);
+          }else{
+            _alertLogin();
           }
         },
         padding: EdgeInsets.all(15.0),
@@ -124,6 +127,27 @@ class _PageLoginState extends State<PageLogin> {
         ),
       ),
     );
+  }
+
+  _alertLogin() {
+    Alert(
+      context: context,
+      type: AlertType.error,
+      title: "อีเมล หรือ รหัสผ่าน ไม่ถูกต้อง",
+      desc: "",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "ตกลก",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: (){
+            Navigator.pop(context);
+          },
+          width: 120,
+        )
+      ],
+    ).show();
   }
 
   @override
@@ -185,13 +209,15 @@ class _PageLoginState extends State<PageLogin> {
                               "สมัครสมาชิก",
                               style: TextStyle(color: Colors.white),
                             ),
-                            onTap: (){
-                              
+                            onTap: () {
+                              Navigator.pushNamed(context, '/register-page');
                             },
                           ),
                         ),
                       ),
-                      SizedBox(height: 50,),
+                      SizedBox(
+                        height: 50,
+                      ),
                       Container(
                         margin: EdgeInsets.all(10.0),
                         height: 35,

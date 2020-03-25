@@ -10,6 +10,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapstore/login.dart';
+import 'package:mapstore/models/dataComment.dart';
 import 'package:mapstore/models/dataShop.dart';
 import 'package:http/http.dart' as http;
 import 'package:mapstore/search.dart';
@@ -43,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<DataShop> datashop;
   List<DataLogin> dataLogin;
+  List<DataComment> dataComment;
 
   Color myColor = Color(0xff00bfa5);
   double _ratingStar = 0;
@@ -72,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // ร้าน
     if (datashop.length > 0) {
       for (var i = 0; i < datashop.length; i++) {
-        final MarkerId markerId = MarkerId(i.toString());
+        final MarkerId markerId = MarkerId(datashop[i].shopsId.toString());
         double x1 = double.parse(datashop[i].shopsLatitube);
         double y1 = double.parse(datashop[i].shopsLongtitube);
         double distans1 = await Geolocator().distanceBetween(x, y, x1, y1);
@@ -145,7 +147,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // รับค่าค้นหา
   _navigateSearch(BuildContext context) async {
-    distant = 300;
+    distant = 1000;
     iniPlatformState(distant);
     // var dataSearch = await Navigator.push(
     //   context,
@@ -187,7 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
         content: Column(
           children: <Widget>[
             TextField(
-              onChanged: (text){
+              onChanged: (text) {
                 _comment = text;
               },
               decoration: InputDecoration(
@@ -195,7 +197,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 labelText: 'แสดงความคิดเห็น',
               ),
             ),
-            SizedBox(height: 10,),
+            SizedBox(
+              height: 10,
+            ),
             Center(
               child: RatingBar(
                 onRatingChanged: (rating) =>
@@ -224,6 +228,41 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           )
         ]).show();
+  }
+
+  _alertLogout() {
+    Alert(
+      context: context,
+      type: AlertType.warning,
+      title: "ต้องการออกจากระบบหรือไม่ ?",
+      desc: "",
+      buttons: [
+        DialogButton(
+          child: Text(
+            "ตกลง",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+            dataLogin = null;
+            setState(() {});
+          },
+          color: Colors.greenAccent,
+          // gradient: LinearGradient(colors: [
+          //   Color.fromRGBO(116, 116, 191, 1.0),
+          //   Color.fromRGBO(52, 138, 199, 1.0)
+          // ]),
+        ),
+        DialogButton(
+          child: Text(
+            "ยกเลิก",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+          onPressed: () => Navigator.pop(context),
+          color: Colors.redAccent,
+        ),
+      ],
+    ).show();
   }
 
   Future<void> _goToTheLake() async {
@@ -268,8 +307,51 @@ class _MyHomePageState extends State<MyHomePage> {
         CameraPosition(target: LatLng(x, y), zoom: zoomVal)));
   }
 
+  void _commentStore(var id) async {
+    var response = await http.get(
+        Uri.encodeFull("http://206.189.46.191/WebAPI/getCommend/" + id),
+        headers: {"Accept": "application/json"});
+    dataComment = dataCommentFromJson(response.body);
+  }
+
+  List<Widget> _getComment(var id) {
+    _commentStore(id);
+    List<Widget> list = new List();
+    for (int i = 0; i < dataComment.length; i++) {
+      list.add(
+        Card(
+            child: Container(
+          padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
+          width: 200,
+          height: 100,
+          child: Column(
+            children: <Widget>[
+              Text(
+                dataComment[i].userName,
+                style: TextStyle(
+                  fontSize: 20.0,
+                ),
+              ),
+              SizedBox(height: 10.0),
+              Text(dataComment[i].commentComment),
+              SizedBox(height: 10.0),
+              _buildRatingStars(int.parse(dataComment[i].likeLike)),
+              SizedBox(height: 10.0),
+            ],
+          ),
+        )),
+      );
+    }
+    return list;
+  }
+
   Container _buildBottonNavigationMethod(var index) {
-    int i = int.parse(index);
+    int i;
+    for (int j = 0; j < datashop.length; j++) {
+      if (datashop[j].shopsId.toString() == index.toString()) {
+        i = j;
+      }
+    }
     return Container(
       child: ListView(
         children: <Widget>[
@@ -314,7 +396,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
                 SizedBox(height: 15.0),
-                Text(datashop[i].shopsType,
+                Text(datashop[i].shopsName,
                     style: TextStyle(fontSize: 16.0, color: Colors.black)),
                 SizedBox(height: 15.0),
                 Container(
@@ -356,32 +438,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 Container(
                   child: Center(
                     child: Column(
-                      children: <Widget>[
-                        Card(
-                            child: Container(
-                          padding: EdgeInsets.fromLTRB(0, 20, 0, 0),
-                          width: 200,
-                          height: 100,
-                          child: Column(
-                            children: <Widget>[
-                              Text(
-                                'แบงค์',
-                                style: TextStyle(
-                                  fontSize: 20.0,
-                                ),
-                              ),
-                              SizedBox(height: 10.0),
-                              Text("ร้านดีครับ"),
-                              SizedBox(height: 10.0),
-                              _buildRatingStars(int.parse("4")),
-                              SizedBox(height: 10.0),
-                            ],
-                          ),
-                        )),
-                      ],
+                      children: _getComment(index),
                     ),
                   ),
-                ),
+                )
               ],
             ),
           ),
@@ -407,7 +467,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ? IconButton(
                 icon: Icon(FontAwesomeIcons.user),
                 onPressed: () {
-                  dataLogin = null;
+                  _alertLogout();
                   setState(() {});
                 },
               )

@@ -14,7 +14,7 @@ class DataShop {
     String shopsLatitube;
     String shopsLongtitube;
     String shopsPicture;
-    String shopsType;
+    String shoptypeName;
     String shopsAddress;
 
     DataShop({
@@ -23,7 +23,7 @@ class DataShop {
         this.shopsLatitube,
         this.shopsLongtitube,
         this.shopsPicture,
-        this.shopsType,
+        this.shoptypeName,
         this.shopsAddress,
     });
 
@@ -33,7 +33,7 @@ class DataShop {
         shopsLatitube: json["shops_latitube"],
         shopsLongtitube: json["shops_longtitube"],
         shopsPicture: json["shops_picture"],
-        shopsType: json["shops_type"],
+        shoptypeName: json["shoptype_name"],
         shopsAddress: json["shops_address"],
     );
 
@@ -43,7 +43,7 @@ class DataShop {
         "shops_latitube": shopsLatitube,
         "shops_longtitube": shopsLongtitube,
         "shops_picture": shopsPicture,
-        "shops_type": shopsType,
+        "shoptype_name": shoptypeName,
         "shops_address": shopsAddress,
     };
 }

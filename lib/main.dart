@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:mapstore/login.dart';
+import 'package:mapstore/register.dart';
 import 'package:mapstore/search.dart';
 import 'home.dart';
 
@@ -22,6 +23,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/login-page': (context) => PageLogin(),
         '/search-page': (context) => PageSearch(),
+        '/register-page': (context) => PageRegister(),
+        '/home-page': (context) => MyHomePage(),
+
       },
     );
   }
