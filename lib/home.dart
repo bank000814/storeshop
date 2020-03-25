@@ -1,9 +1,10 @@
 import 'dart:collection';
-import 'dart:convert';
+import 'dart:convert' as convert;
 import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
@@ -12,6 +13,8 @@ import 'package:mapstore/login.dart';
 import 'package:mapstore/models/dataShop.dart';
 import 'package:http/http.dart' as http;
 import 'package:mapstore/search.dart';
+import 'package:rating_bar/rating_bar.dart';
+
 import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'models/dataLogin.dart';
@@ -30,6 +33,7 @@ class _MyHomePageState extends State<MyHomePage> {
   static double y = 0.0;
   static var nameLogin = null;
   static double distant = 600;
+  var rating = 0.0;
   double zoomVal = 16;
   BitmapDescriptor _markerIcon;
   // BitmapDescriptor _markerIconMe;
@@ -39,6 +43,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<DataShop> datashop;
   List<DataLogin> dataLogin;
+
+  Color myColor = Color(0xff00bfa5);
+  double _ratingStar = 0;
+  String _comment;
 
   @override
   void initState() {
@@ -60,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     x = currentLocation.latitude;
     y = currentLocation.longitude;
-    _setCircles(x, y ,d);
+    _setCircles(x, y, d);
     // ร้าน
     if (datashop.length > 0) {
       for (var i = 0; i < datashop.length; i++) {
@@ -137,7 +145,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // รับค่าค้นหา
   _navigateSearch(BuildContext context) async {
-    distant = 600;
+    distant = 300;
     iniPlatformState(distant);
     // var dataSearch = await Navigator.push(
     //   context,
@@ -171,32 +179,47 @@ class _MyHomePageState extends State<MyHomePage> {
     ).show();
   }
 
-  _alertInput() {
+  //
+  void _alertInput() {
     Alert(
         context: context,
-        title: "แสดงความคิดเห็น",
+        title: "ความคิดเห็น",
         content: Column(
           children: <Widget>[
             TextField(
+              onChanged: (text){
+                _comment = text;
+              },
               decoration: InputDecoration(
-                icon: Icon(Icons.account_circle),
-                labelText: 'Username',
+                icon: Icon(Icons.message),
+                labelText: 'แสดงความคิดเห็น',
               ),
             ),
-            TextField(
-              obscureText: true,
-              decoration: InputDecoration(
-                icon: Icon(Icons.lock),
-                labelText: 'Password',
+            SizedBox(height: 10,),
+            Center(
+              child: RatingBar(
+                onRatingChanged: (rating) =>
+                    setState(() => _ratingStar = rating),
+                filledIcon: Icons.star,
+                emptyIcon: Icons.star_border,
+                halfFilledIcon: Icons.star_half,
+                isHalfAllowed: true,
+                filledColor: Colors.orangeAccent,
+                emptyColor: Colors.orangeAccent,
+                size: 30,
               ),
-            ),
+            )
           ],
         ),
         buttons: [
           DialogButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(context);
+              print(_comment);
+              print(_ratingStar);
+            },
             child: Text(
-              "LOGIN",
+              "ตกลง",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
           )
@@ -256,7 +279,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 300.0,
                 decoration: BoxDecoration(
                   image: DecorationImage(
-                      image: AssetImage('assets/image.png'), fit: BoxFit.fill),
+                      image: MemoryImage(
+                          convert.base64Decode(datashop[i].shopsPicture)),
+                      fit: BoxFit.fill),
                 ),
               ),
             ],
@@ -383,9 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 icon: Icon(FontAwesomeIcons.user),
                 onPressed: () {
                   dataLogin = null;
-                  setState(() {
-                    
-                  });
+                  setState(() {});
                 },
               )
             : IconButton(

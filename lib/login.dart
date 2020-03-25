@@ -178,6 +178,20 @@ class _PageLoginState extends State<PageLogin> {
                       ),
                       _buildPasswordTF(),
                       _buildLoginBtn(),
+                      Center(
+                        child: Container(
+                          child: GestureDetector(
+                            child: Text(
+                              "สมัครสมาชิก",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onTap: (){
+                              
+                            },
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 50,),
                       Container(
                         margin: EdgeInsets.all(10.0),
                         height: 35,
