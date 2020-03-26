@@ -147,12 +147,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // รับค่าค้นหา
   _navigateSearch(BuildContext context) async {
-    distant = 1000;
-    iniPlatformState(distant);
-    // var dataSearch = await Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => PageSearch()),
-    // );
+    var dataSearch = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => PageSearch()),
+    );
+    
   }
 
   _alertComment() {
