@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:mapstore/models/dataType.dart';
 
 class PageSearch extends StatefulWidget {
   @override
@@ -7,7 +9,27 @@ class PageSearch extends StatefulWidget {
 
 class _PageSearchState extends State<PageSearch> {
   String dropdownValueTime = 'ประเภทของร้าน';
-  var dataTime = ['ประเภทของร้าน', 'กะเช้า', 'กะเย็น', 'เต็มวัน'];
+  var dataTime = ['ประเภทของร้าน'];
+
+  List<DataType> datatype;
+
+  @override
+  void initState() {
+    super.initState();
+    this.getType();
+  }
+
+  getType() async {
+    var response = await http.get(
+        Uri.encodeFull("http://206.189.46.191/WebAPI/typeShop"),
+        headers: {"Accept": "application/json"});
+    datatype = dataTypeFromJson(response.body);
+    // print(response.body);
+    for (int i = 0; i < datatype.length; i++) {
+      dataTime.add(datatype[i].shoptypeName);
+    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -82,6 +104,11 @@ class _PageSearchState extends State<PageSearch> {
                     textColor: Colors.white,
                     onPressed: () {
                       setState(() {});
+                      if (dropdownValueTime != 'ประเภทของร้าน') {
+                        Navigator.pop(context, dropdownValueTime);
+                      }else{
+                        Navigator.pop(context);
+                      }
                     },
                   ),
                 ],

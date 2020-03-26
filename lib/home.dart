@@ -53,24 +53,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
-    iniPlatformState(distant);
+    iniPlatformState("null");
     _setMarkerIcon();
   }
 
-  Future<void> iniPlatformState(double d) async {
+  Future<void> iniPlatformState(String type) async {
     datashop = null;
     markers.clear();
-    var response = await http.get(
-        Uri.encodeFull("http://206.189.46.191/WebAPI/shopAll"),
-        headers: {"Accept": "application/json"});
-    datashop = dataShopFromJson(response.body);
-    print("data_shop : " + datashop.length.toString());
+    if (type == "null") {
+      var response = await http.get(
+          Uri.encodeFull("http://206.189.46.191/WebAPI/shopAll"),
+          headers: {"Accept": "application/json"});
+      datashop = dataShopFromJson(response.body);
+      // print("data_shop : " + datashop.length.toString());
+    } else {
+      var response = await http.get(
+          Uri.encodeFull("http://206.189.46.191/WebAPI/shopSearch/"+type),
+          headers: {"Accept": "application/json"});
+      datashop = dataShopFromJson(response.body);
+    }
 
     var currentLocation = await Geolocator()
         .getCurrentPosition(desiredAccuracy: LocationAccuracy.best);
     x = currentLocation.latitude;
     y = currentLocation.longitude;
-    _setCircles(x, y, d);
+    _setCircles(x, y);
     // ร้าน
     if (datashop.length > 0) {
       for (var i = 0; i < datashop.length; i++) {
@@ -117,13 +124,13 @@ class _MyHomePageState extends State<MyHomePage> {
     zoom: 16,
   );
 
-  void _setCircles(x, y, d) {
+  void _setCircles(x, y) {
     _circles.clear();
     _circles.add(
       Circle(
           circleId: CircleId("0"),
           center: LatLng(x, y),
-          radius: d,
+          radius: distant,
           strokeWidth: 2,
           fillColor: Color.fromRGBO(102, 51, 153, .5)),
     );
@@ -151,7 +158,10 @@ class _MyHomePageState extends State<MyHomePage> {
       context,
       MaterialPageRoute(builder: (context) => PageSearch()),
     );
-    
+    if (dataSearch != null) {
+      iniPlatformState(dataSearch);
+      // print(dataSearch);
+    }
   }
 
   _alertComment() {
@@ -265,7 +275,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> _goToTheLake() async {
-    iniPlatformState(distant);
+    iniPlatformState("null");
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kGooglePlex));
   }
