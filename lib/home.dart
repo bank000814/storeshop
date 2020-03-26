@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // print("data_shop : " + datashop.length.toString());
     } else {
       var response = await http.get(
-          Uri.encodeFull("http://206.189.46.191/WebAPI/shopSearch/"+type),
+          Uri.encodeFull("http://206.189.46.191/WebAPI/shopSearch/" + type),
           headers: {"Accept": "application/json"});
       datashop = dataShopFromJson(response.body);
     }
@@ -191,7 +191,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   //
-  void _alertInput() {
+  void _alertInput(var idshop) {
     Alert(
         context: context,
         title: "ความคิดเห็น",
@@ -226,10 +226,23 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         buttons: [
           DialogButton(
-            onPressed: () {
-              Navigator.pop(context);
+            onPressed: () async {
+              print(idshop);
+              print(dataLogin[0].userId);
+              print(dataLogin[0].userName);
               print(_comment);
               print(_ratingStar);
+              var url = 'http://206.189.46.191/WebAPI/insertCommentShop';
+              var response = await http.post(url, body: {
+                'idshop': idshop,
+                'iduser': dataLogin[0].userId,
+                'nameuser': dataLogin[0].userName,
+                'comment': _comment,
+                'like': _ratingStar.toString()
+              });
+              if(int.parse(response.body) > 0 ){
+                Navigator.pop(context);
+              }
             },
             child: Text(
               "ตกลง",
@@ -429,7 +442,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       if (dataLogin == null) {
                         _alertComment();
                       } else {
-                        _alertInput();
+                        _alertInput(index);
                       }
                     },
                     color: Color(0xFF3d9af9),
@@ -447,7 +460,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 Container(
                   child: Center(
                     child: Column(
-                      children: _getComment(index),
+                      children: (dataComment != null)
+                          ? _getComment(index)
+                          : Container(),
                     ),
                   ),
                 )
